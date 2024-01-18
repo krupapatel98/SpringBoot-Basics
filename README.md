@@ -38,14 +38,12 @@ For further reference, please consider the following sections:
 
 * Injecting dependencies by calling setter methods on the class.
 * We can use any method name and autowire it.
-* Example for setter injection --
-
-
-    //the setCoach method can have other name as well as far as it is Autowired
-    @Autowired
-    public void setCoach(Coach theCoach) {
-      myCoach = theCoach;
-    }
+* Example for setter injection --<br>
+      //the setCoach method can have other name as well as far as it is Autowired
+  <br>    @Autowired
+    <br>public void setCoach(Coach theCoach) {
+    <br>myCoach = theCoach;
+    <br>}
 
 
 ### Field Injection
