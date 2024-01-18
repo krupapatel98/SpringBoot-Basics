@@ -12,7 +12,7 @@ For further reference, please consider the following sections:
 * [Spring Boot Maven Plugin Reference Guide](https://docs.spring.io/spring-boot/docs/3.2.1/maven-plugin/reference/html/)
 * [Create an OCI image](https://docs.spring.io/spring-boot/docs/3.2.1/maven-plugin/reference/html/#build-image)
 
-## Adding Project to the GIT<hr>
+## Adding Project to the GIT
 1. Install Git into your system. 
 2. Then open project in IntelliJ 
 3. Go to VCS Menu ---> Enable VCS integration option ---> Select Git. This will create empty git repository in local system and this folder will be hidden. 
@@ -22,19 +22,19 @@ For further reference, please consider the following sections:
 7. Now **Commit and Push** onto the Git. 
 8. While committing for the first time it will ask to login to GitHub using Login or Token Method.
 
-## Section 1<hr><hr>
-### SpringBoot DevTools<hr>
-### Actuators<hr>
-### Securing the Endpoints<hr>
-### Custom Application Properties<hr><hr>
+## Section 1<hr>
+### SpringBoot DevTools
+### Actuators
+### Securing the Endpoints
+### Custom Application Properties
 
 
-## Section 2<hr><hr>
-### Inversion of Control<hr>
-### Dependency Injection<hr>
-### Constructor Injection<hr>
-### Component Scanning<hr>
-### Setter Injection<hr>
+## Section 2<hr>
+### Inversion of Control
+### Dependency Injection
+### Constructor Injection
+### Component Scanning
+### Setter Injection
 
 * Injecting dependencies by calling setter methods on the class.
 * We can use any method name and autowire it.
@@ -47,11 +47,10 @@ public void setCoach(Coach theCoach)
 {
     myCoach = theCoach;
 }
-
 ```
 
 
-### Field Injection<hr>
+### Field Injection
 * No longer used
 * used on legacy projects
 * Makes code harder to unit test
@@ -66,15 +65,14 @@ private Coach myCoach
 ```
 
 ### Qualifiers
-<hr>
 
 * Spring will scan **_@Component_** on the class and if it finds them, it injects it.
 * But, if there are multiple implementations then it provides following error  -- <br>
-
-  **ERROR -- Parameter 0 of constructor in com.SBProject.hellospring.rest.DemoController required a single bean, but 2 were found:<br>
-  baseballCoach<br>
-  cricketCoach**
-
+```error
+  Parameter 0 of constructor in com.SBProject.hellospring.rest.DemoController required a single bean, but 2 were found:
+  baseballCoach
+  cricketCoach 
+```
 * Hence, we can use **_@Qualifier_** in Constructor and Setter injection, and it will select the class that is mentioned in the Qualifier.
 * If we do not mention **_@Component_** over the class then it is not recognized as Spring Bean.
 * Example --<br>
@@ -83,43 +81,48 @@ private Coach myCoach
     @Autowired
     public DemoController(@Qualifier("baseballCoach") Coach theCoach){
         myCoach = theCoach;
-     }
+    }
 ```
 
 
 
 * Here the **_@Qualifier("baseballCoach")_** is the default class implementation that will be considered. It is same name as class name except first character is lower-case.
 * If the class mentioned in the Qualifier is changed/wrongly named then it throws following error -- <br>
-  
-  **ERROR -- Parameter 0 of constructor in com.SBProject.hellospring.rest.DemoController required a bean of type 'com.SBProject.hellospring.common.Coach' that could not be found.<br>
+
+```error 
+  Parameter 0 of constructor in com.SBProject.hellospring.rest.DemoController required a bean of type 'com.SBProject.hellospring.common.Coach' that could not be found.<br>
   The injection point has the following annotations:<br>
   @org.springframework.beans.factory.annotation.Qualifier("baseballCoac")
   The following candidates were found but could not be injected:
-  <br>User-defined bean
-  <br>User-defined bean**
+  User-defined bean
+  User-defined bean
+```  
   
 
-### Primary Annotation<hr>
+### Primary Annotation
 * Instead of using Qualifier use an annotation **@Primary** over a class.
 * There is only one class can be marked as Primary.
 * When **_@Primary_** and **_@Qualifier_** is used together, then @Qualifier has higher priority.
 * Example --<br>
-
-    @Component
-  <br>    @Primary
-  <br>public class TennisCoach implements Coach{
-  <br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;@Override
-  <br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;public String getDailyWorkout() {
-  <br>    &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;return "Practice your backhand volley!";
-  <br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;}
-  <br>}
+  
+```java
+@Component
+@Primary
+public class TennisCoach implements Coach{ 
+    @Override 
+    public String getDailyWorkout() {
+        return "Practice your backhand volley!";
+    }
+}
+```
 
 * If multiple **_@Primary_** used on various classes then it throws an error.
 
-  **ERROR -- No qualifying bean of type 'com.SBProject.hellospring.common.Coach' available: more than one 'primary' bean found among candidates: [baseballCoach, cricketCoach, tennisCoach, trackCoach]**  
+```error
+ERROR -- No qualifying bean of type 'com.SBProject.hellospring.common.Coach' available: more than one 'primary' bean found among candidates: [baseballCoach, cricketCoach, tennisCoach, trackCoach]
+```
 
-
-### Lazy Initialization<hr>
+### Lazy Initialization
 * By default, when application starts all beans are initialized, Spring will create an instance of each and make them available.
 * Instead of creating all beans we can specify lazy initialization.
 * A bean will only be initialized when --
