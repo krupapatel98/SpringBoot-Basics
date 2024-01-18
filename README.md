@@ -42,7 +42,7 @@ For further reference, please consider the following sections:
       //the setCoach method can have other name as well as far as it is Autowired
   <br>    @Autowired
     <br>public void setCoach(Coach theCoach) {
-    <br>myCoach = theCoach;
+    <br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;myCoach = theCoach;
     <br>}
 
 
@@ -61,53 +61,48 @@ private Coach myCoach
 ### Qualifiers
 * Spring will scan @Component on the class and if it finds them, it injects it.
 * But, if there are multiple implementations then it provides following error  -- <br>
-  <span style="color:red">
-  Parameter 0 of constructor in com.SBProject.hellospring.rest.DemoController required a single bean, but 2 were found:<br>
+
+  **ERROR -- Parameter 0 of constructor in com.SBProject.hellospring.rest.DemoController required a single bean, but 2 were found:<br>
   baseballCoach<br>
-  cricketCoach
-  </span>
+  cricketCoach**
+
 * Hence, we can use <b>@Qualifier</b> in Constructor and Setter injection, and it will select the class that is mentioned in the Qualifier.
 * If we do not mention @Component over the class then it is not recognized as Spring Bean.
 * Example --<br>
-
-
     @Autowired
-    public DemoController(@Qualifier("baseballCoach") Coach theCoach){
-      myCoach = theCoach;
-    }
+  <br> public DemoController(@Qualifier("baseballCoach") Coach theCoach){
+  <br>  &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; myCoach = theCoach;
+  <br>   }
 
 
 * Here the **@Qualifier("baseballCoach"** is the default class implementation that will be considered. It is same name as class name except first character is lower-case.
 * If the class mentioned in the Qualifier is changed/wrongly named then it throws following error -- <br>
-  <span style="color:red">
-  Parameter 0 of constructor in com.SBProject.hellospring.rest.DemoController required a bean of type 'com.SBProject.hellospring.common.Coach' that could not be found.<br>
+  
+  **ERROR -- Parameter 0 of constructor in com.SBProject.hellospring.rest.DemoController required a bean of type 'com.SBProject.hellospring.common.Coach' that could not be found.<br>
   The injection point has the following annotations:<br>
   @org.springframework.beans.factory.annotation.Qualifier("baseballCoac")
   The following candidates were found but could not be injected:
   <br>User-defined bean
-  <br>User-defined bean
-  </span>
+  <br>User-defined bean**
+  
 
 ### Primary Annotation
 * Instead of using Qualifier use an annotation **@Primary** over a class.
 * There is only one class can be marked as Primary.
 * When @Primary and @Qualifier is used together, then @Qualifier has higher priority.
-* Example --
+* Example --<br>
 
-
-    @Component 
-    @Primary
-    public class TennisCoach implements Coach{ 
-      @Override
-      public String getDailyWorkout() {
-          return "Practice your backhand volley!";
-      }
-    }
+    @Component
+  <br>    @Primary
+  <br>public class TennisCoach implements Coach{
+  <br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;@Override
+  <br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;public String getDailyWorkout() {
+  <br>    &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;return "Practice your backhand volley!";
+  <br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;}
+  <br>}
 
 * If multiple @Primary used on various classes then it throws an error.
 
- <span style="color:red">
-  No qualifying bean of type 'com.SBProject.hellospring.common.Coach' available: more than one 'primary' bean found among candidates: [baseballCoach, cricketCoach, tennisCoach, trackCoach]  
-  </span> 
+  **ERROR -- No qualifying bean of type 'com.SBProject.hellospring.common.Coach' available: more than one 'primary' bean found among candidates: [baseballCoach, cricketCoach, tennisCoach, trackCoach]**  
 
 
