@@ -15,8 +15,8 @@ public class DemoController {
 
     //defining constructor for dependency injection
     @Autowired
-    public DemoController(Coach theCoach){
-        myCoach = theCoach;
+    public DemoController(Coach thetheCoach){
+        myCoach = thetheCoach;
     }
 
 //    //Example for setter injection
