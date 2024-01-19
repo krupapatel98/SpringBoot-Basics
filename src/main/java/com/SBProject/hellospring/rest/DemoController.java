@@ -13,12 +13,12 @@ public class DemoController {
 
     private Coach myCoach;
 
-    //defining constructor for dependency injection
 
+    //defining constructor for dependency injection
     @Autowired
-    public DemoController(@Qualifier("cricketCoach") Coach thetheCoach){
+    public DemoController(@Qualifier("swimCoach") Coach theCoach){
         System.out.println("In constructor: "+ getClass().getSimpleName());
-        myCoach = thetheCoach;
+        myCoach = theCoach;
     }
 
 //    //Example for setter injection
@@ -31,4 +31,6 @@ public class DemoController {
     public String getDailyWorkout(){
         return myCoach.getDailyWorkout();
     }
+
+
 }

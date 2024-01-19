@@ -21,15 +21,17 @@ For further reference, please consider the following sections:
 6. In Commit window there will be files which are not part of GIT repo. 
 7. Now **Commit and Push** onto the Git. 
 8. While committing for the first time it will ask to login to GitHub using Login or Token Method.
+<hr>
 
-## Section 1<hr>
+## SECTION 1 - Spring Boot 3
 ### SpringBoot DevTools
 ### Actuators
 ### Securing the Endpoints
 ### Custom Application Properties
 
+<hr>
 
-## Section 2<hr>
+## SECTION 2 - Spring Core
 ### Inversion of Control
 ### Dependency Injection
 ### Constructor Injection
@@ -201,3 +203,97 @@ In constructor: TennisCoach
 In constructor: DemoController
 ```
   
+### Bean Scopes
+* Scope refers to life cycle of bean.
+* Default scope is **SINGLETON**. 
+* **Singleton** -- spring container creates only one instance of the bean by default. It is cached in memory and all dependency injections for the bean will reference the same bean.
+* Other additional scopes are -- Prototype, Request, Session, global-session.
+
+```java
+@Component
+@Scope(ConfigurableBeanFactory.SCOPE_PROTOTYPE)
+public class CricketCoach implements Coach{
+
+    public CricketCoach(){
+        System.out.println("In constructor: "+ getClass().getSimpleName());
+    }
+    @Override
+    public String getDailyWorkout(){
+        return "Practice fast bowling for 15 minutes :) :)";
+    }
+}
+```
+
+Here **_@Scope(ConfigurableBeanFactory.SCOPE_PROTOTYPE)_** creates new bean instance and hence its objects don't point to same bean.
+
+### Java Configuration Bean
+* **_@Configuration_** is a configuration class for configuring spring using custom approach.
+* **_@Bean_** -- used to configure Bean which has method and returns instance of that class.
+  * Makes an existing third-party class available to Spring framework. 
+  * May not have access to the source code of third party class and have only JAR file of the class and we have to use it.
+
+```java
+//We are not using @Component as we need to configure it using custom approach.
+public class SwimCoach implements Coach{
+
+    public SwimCoach(){
+        System.out.println("In constructor: " + getClass().getSimpleName());
+    }
+
+    @Override
+    public String getDailyWorkout() {
+        return "Swim 1000 meters as warmup!";
+    }
+}
+
+@Autowired
+public DemoController(@Qualifier("swimCoach") Coach theCoach){
+    System.out.println("In constructor: "+ getClass().getSimpleName());
+    myCoach = theCoach;
+}
+```
+We have not used **_@Component_** for the SwimClass and initialized in the Controller and hence it throws below error.
+```error
+Parameter 0 of constructor in com.SBProject.hellospring.rest.DemoController required a bean of type 'com.SBProject.hellospring.common.Coach' that could not be found.
+
+The injection point has the following annotations:
+	- @org.springframework.beans.factory.annotation.Qualifier("swimCoach")
+```
+
+To resolve the above problem use following steps -- 
+1. Create a package called **_Config_**
+2. **_@Configuration_** class -- In config package create a Configuration class with @Configuration annotation.
+3. Define @Bean method to configure the bean.
+
+```java
+package com.SBProject.hellospring.config;
+
+@Configuration
+public class SportConfig {
+
+    @Bean
+    public Coach swimCoach(){           // bean id defaults to the method name with first letter lowercase
+        return new SwimCoach();
+    }
+}
+```
+<hr>
+
+## SECTION 3 - Hibernate/JPA CRUD
+
+### Hibernate/JPA Overview
+* Hibernate is for persisting/saving Java Object in a database.
+* www.hibernate.org/orm
+* It handles all low-level SQL.
+* Minimizes the amount of JDBC code you have to develop
+* Hibernate provides ORM.
+
+Object to Relational Mapping (ORM) - A developer defines mapping between Java class and database table.<br>
+Jakarta Persistence API (JPA) - Standard API for ORM. Defines set of interfaces.
+
+
+### Setting up MySQL Database 
+
+* MYSQL includes two components - **MySQL Database Server and MySQL Workbench**
+* MySQL Database Server is the main engine of database. It stores data for database
+* MySQL Workbench is a GUI for interacting with the database 
