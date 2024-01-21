@@ -292,8 +292,138 @@ Object to Relational Mapping (ORM) - A developer defines mapping between Java cl
 Jakarta Persistence API (JPA) - Standard API for ORM. Defines set of interfaces.
 
 
-### Setting up MySQL Database 
+### Setting up MySQL Database and Spring Boot Application
 
 * MYSQL includes two components - **MySQL Database Server and MySQL Workbench**
 * MySQL Database Server is the main engine of database. It stores data for database
-* MySQL Workbench is a GUI for interacting with the database 
+* MySQL Workbench is a GUI for interacting with the database
+* Add following dependencies in the project --
+  * MySQL Drivers - **_mysql-connector-j_**
+  * Spring Data JPA - **_spring-boot-starter-data-jpa_**
+* Add sql url, user and password in the application.properties file --
+```properties
+spring.datasource.url=jdbc:mysql://localhost:3306/student_tracker
+spring.datasource.username=springstudent
+spring.datasource.password=springstudent
+```
+
+### JPA Annotations
+* Hibernate is the default JPA implementation in SpringBoot.
+* **Entity Class** - 
+  * Java class that is mapped to a database table.
+  * Must be annotated as **_@Entity_**
+  * Must have public/protected no-arg constructor
+  * The class can have other constructor
+1. **Entity and Table annotation -**
+```java
+@Entity
+@Table(name="student")
+public class Student {
+}
+```
+
+2. **Column annotation -**
+```java
+@Column(name="first_name")
+private String firstName;
+```
+
+3. **To specify Primary Key -**
+   * Use @Id and @GeneratedValue 
+   * Various Id generation stategies can be used like - 
+     * GenerationType.AUTO
+     * GenerationType.IDENTITY
+     * GenerationType.SEQUENCE
+     * GenerationType.TABLE
+   * You can also define custom generation strategy
+```java
+@Id
+@GeneratedValue(strategy = GenerationType.IDENTITY) 
+@Column(name="id")
+private int id;
+```
+
+### Saving the Java Object
+
+* To perform CRUD operations we required - 
+1. Create a **Data Access Object (DAO)** - DAO is responsible for interfacing with the database. This is common design pattern.
+2. Various methods can be used like save(), findById(), deleteAll().
+3. DAO needs JPA entity manager. Entity manager is the main component for saving/retrieving entities. 
+4. Entity manager needs a data source. Data source defines a database connection. Both are automatically created by Spring boot.
+
+* Created DAO interface and implemented its method into the class -
+```java
+public interface StudentDAO {
+    void save(Student theStudent);
+}
+```
+
+```java
+@Repository
+public class StudentDAOImpl implements StudentDAO{
+
+    //define field for entity manager
+    private EntityManager entityManager;
+
+    //inject entity manager using constructor injection
+
+    @Autowired
+    public StudentDAOImpl(EntityManager entityManager) {
+        this.entityManager = entityManager;
+    }
+
+    // implements save method
+    @Override
+    @Transactional
+    public void save(Student theStudent) {
+        entityManager.persist(theStudent);
+    }
+}
+```
+* **_@Transactional_** - it automatically begins and ends a transaction for JPA code.
+
+### Reading an Object
+
+```java
+@Override
+public Student findById(Integer id) {
+    return entityManager.find(Student.class, id);
+}
+```
+
+### Updating the Object
+```java
+@Override
+@Transactional
+public void update(Student theStudent) {
+    entityManager.merge(theStudent);
+}
+```
+
+
+### Removing the Object
+```java
+@Override
+@Transactional
+public void delete(Integer id) {
+    //retrieve the student
+    Student theStudent = entityManager.find(Student.class, id);
+
+    //delete the student
+    entityManager.remove(theStudent);
+}
+```
+
+### Create Database Tables from Java Code
+* JPA/Hibernate provides an option to automatically create database tables using annotations.
+* When you run the application JPA/Hibernate will drop tables then create them based on annotations in JAVA code.
+* Various property values which can be used are -- **none, create-only, drop, create, update, and validate** 
+
+Add the following property in application.properties file -- 
+```properties
+# Configure JPA/Hibernate to auto create the tables
+spring.jpa.hibernate.ddl-auto=create
+```
+
+**NOTE-** On using **create** property, it drops the table every time and creates new table. The data is lost in this case. If one wants to keep the data as it is then use **update** property.
+
