@@ -427,3 +427,5 @@ spring.jpa.hibernate.ddl-auto=create
 
 **NOTE-** On using **create** property, it drops the table every time and creates new table. The data is lost in this case. If one wants to keep the data as it is then use **update** property.
 
+# Section 3
+
