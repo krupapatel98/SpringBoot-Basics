@@ -95,7 +95,7 @@ public class HelloSpringApplication {
 	private void createMultipleStudents(StudentDAO studentDAO) {
 		System.out.println("Creating 3 student object....");
 		Student tempStudent1 = new Student("Yash", "Patel", "yash@gmail.com");
-		Student tempStudent2 = new Student("Vishwa", "Patel", "vishwa@gmail.com");
+		Student tempStudent2 = new Student("Vishwa", 	"Patel", "vishwa@gmail.com");
 		Student tempStudent3 = new Student("Jainil", "Patel", "jainil@gmail.com");
 
 		//saving the students

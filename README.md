@@ -427,5 +427,148 @@ spring.jpa.hibernate.ddl-auto=create
 
 **NOTE-** On using **create** property, it drops the table every time and creates new table. The data is lost in this case. If one wants to keep the data as it is then use **update** property.
 
-# Section 3
+## SECTION 3 - REST Crud APIs
 
+
+* To load the data only once use - **_@PostConstruct_**
+* Example - 
+```java
+    //define @PostConstruct to load the student data.. only called once!
+    @PostConstruct
+    public void loadData() {
+        theStudents = new ArrayList<>();
+        theStudents.add(new Student("Yash", "Patel", "yash@gmail.com"));
+        theStudents.add(new Student("Vishwa", "Patel", "vishwa@gmail.com"));
+        theStudents.add(new Student("Jainil", "Patel", "jainil@gmail.com"));
+    }
+```
+
+### Path Variables 
+
+```java
+//define endpoint or "/students/{studentId}" - return student at index
+    @GetMapping("/students/{studentId}")
+    public Student getStudent(@PathVariable int studentId){
+        return theStudents.get(studentId);
+    }
+```
+### REST Exception Handling
+1. Create custom error response class
+```java
+public class StudentErrorResponse {
+    private int status;
+    private String message;
+    private long timeStamp;
+    
+    //Define constructors, getters and setters for the class.
+}
+```
+
+2. Create custom exception class inherits from RuntimeException
+```java
+// inherits from RuntimeException
+public class StudentNotFoundException extends RuntimeException{
+    public StudentNotFoundException(String message) {
+        super(message);
+    }
+
+    public StudentNotFoundException(String message, Throwable cause) {
+        super(message, cause);
+    }
+
+    public StudentNotFoundException(Throwable cause) {
+        super(cause);
+    }
+}
+```
+3. Update REST service to throw exception
+```java
+@GetMapping("/students/{studentId}")
+public Student getStudent(@PathVariable int studentId){
+    if((studentId>= theStudents.size()) || (studentId < 0)){
+        throw new StudentNotFoundException("Student id is not found -  " + studentId);
+    }
+    return theStudents.get(studentId);
+}
+```
+4. Add a exception handler using **_@ExceptionHandler_**
+```java
+ //Add an exception handler using @ExceptionHandler
+@ExceptionHandler
+public ResponseEntity<StudentErrorResponse> handleException(StudentNotFoundException exc){
+    //create a student respons
+    StudentErrorResponse error = new StudentErrorResponse();
+    error.setStatus(HttpStatus.NOT_FOUND.value());
+    error.setMessage(exc.getMessage());
+    error.setTimeStamp(System.currentTimeMillis());
+        
+    return new ResponseEntity<>(error, HttpStatus.NOT_FOUND);
+}
+```
+
+```output
+On running the api - http://localhost:8080/api/students/333
+Output received when student is not present- 
+{
+    "status": 404,
+    "message": "Student id is not found -  333",
+    "timeStamp": 1707186744330
+}
+```
+
+* Add a generic exception handler -- to handle all exceptions
+```java
+//Add an exception handler to catch any exception (catch all)
+@ExceptionHandler
+public ResponseEntity<StudentErrorResponse> handleException(Exception exc){
+    StudentErrorResponse error = new StudentErrorResponse();
+
+    error.setStatus(HttpStatus.BAD_REQUEST.value());
+    error.setMessage(exc.getMessage());
+    error.setTimeStamp(System.currentTimeMillis());
+
+    return new ResponseEntity<>(error, HttpStatus. BAD_REQUEST);
+}
+```
+
+### REST Global Exception Handling
+
+1. Create new **_@ControllerAdvice_**
+2. Add exception handling code to **_@ControllerAdvice_**
+
+```java
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.annotation.ControllerAdvice;
+import org.springframework.web.bind.annotation.ExceptionHandler;
+
+@ControllerAdvice
+public class StudentRestExceptionHandler {
+
+  // add exception handler code here
+  //Add an exception handler using @ExceptionHandler
+  @ExceptionHandler
+  public ResponseEntity<StudentErrorResponse> handleException(StudentNotFoundException exc){
+    //create a student response
+    StudentErrorResponse error = new StudentErrorResponse();
+    error.setStatus(HttpStatus.NOT_FOUND.value());
+    error.setMessage(exc.getMessage());
+    error.setTimeStamp(System.currentTimeMillis());
+
+    return new ResponseEntity<>(error, HttpStatus.NOT_FOUND);
+  }
+
+  //Add an exception handler to catch any exception (catch all)
+  @ExceptionHandler
+  public ResponseEntity<StudentErrorResponse> handleException(Exception exc){
+    StudentErrorResponse error = new StudentErrorResponse();
+
+    error.setStatus(HttpStatus.BAD_REQUEST.value());
+    error.setMessage(exc.getMessage());
+    error.setTimeStamp(System.currentTimeMillis());
+
+    return new ResponseEntity<>(error, HttpStatus. BAD_REQUEST);
+
+  }
+}
+```
