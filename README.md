@@ -574,3 +574,187 @@ public class StudentRestExceptionHandler {
 ```
 
 ### Spring Boot REST DAO
+```java
+public interface EmployeeDAO {
+    List<Employee> findAll();
+}
+```
+Following is the implementation of the above DAO interface.
+```java
+@Repository
+public class EmployeeDAOJpaImpl implements EmployeeDAO{
+
+    // define fields for entity manager
+    private EntityManager entityManager;
+
+    //setup constructor injection
+    @Autowired
+    public EmployeeDAOJpaImpl(EntityManager theEntityManager){
+        entityManager = theEntityManager;
+    }
+
+    @Override
+    public List<Employee> findAll() {
+        // create a query
+        TypedQuery<Employee> theQuery = entityManager.createQuery("from Employee", Employee.class);
+
+        //execute query get the result list
+        List<Employee> employees = theQuery.getResultList();
+
+        //return the results
+        return employees;
+    }
+}
+```
+
+### Spring Boot Service Layer
+
+```java
+public interface EmployeeService {
+    List<Employee> findAll();
+}
+```
+This interface is implemented as follows -
+```java
+@Service
+public class EmployeeServiceImpl implements EmployeeService{
+    private EmployeeDAO employeeDAO;
+
+    @Autowired
+    public EmployeeServiceImpl(EmployeeDAO theEmployeeDAO){
+        employeeDAO = theEmployeeDAO;
+    }
+
+    @Override
+    public List<Employee> findAll() {
+        return employeeDAO.findAll();
+    }
+}
+```
+
+# SECTION 5 - Rest API Security
+
+* Spring security defines a framework for security.
+* Implemented using servlet filters in the background.
+
+### Define Security password in properties file
+
+```properties
+# Spring Security Settings
+
+spring.security.user.name=krupa
+spring.security.user.password=test123
+```
+### Spring Security - Servlet Filters
+
+* Servlet filters are used to pre-process/post-process web requests.
+* Servlet filters can route web requests based on security logic.
+* Spring provides a bulk of security functionalities with servlet filters --
+  * **Authentication** - check if user id and password with credentials stored in app/db
+  * **Authorization** - check to see if user has authorized role.
+* Add following dependencies in pom.xml file -- 
+  ```dependencies
+      spring-boot-starter-security
+  ```
+* After adding the dependencies, whenever the application is run Spring Security will open prompt where 
+username = user and password is present in logs. 
+
+### Security Password Storage
+
+* In Spring Security, passwords are stored using a specific format -- **{id} encodedPassword**
+* Here id can be -- 
+  * **noop** - Plain text passwords
+  * **bcrypt** - BCrypt password hashing
+
+### Restricting Access to Roles 
+* Create Spring Security Configuration (@Configuration)
+```java
+@Configuration
+public class DemoSecurityConfig {
+    // add security configurations here
+}
+```
+* Add users, passwords and roles 
+* One can use **requestMatchers()** to restrict the access to the roles. 
+* General Syntax -- 
+  * **requestMatchers(<< add HTTP METHOD to match on >>, << add path to match on >>).hasRole(<< authorized role >>)**
+```java
+ // Restricting Access Based on Roles
+    @Bean
+    public SecurityFilterChain filterChain(HttpSecurity http) throws Exception{
+        http.authorizeHttpRequests(configurer ->
+                configurer
+                        .requestMatchers(HttpMethod.GET,"/api/employees").hasRole("EMPLOYEE")
+                        .requestMatchers(HttpMethod.GET,"/api/employees/**").hasRole("EMPLOYEE")
+                        .requestMatchers(HttpMethod.POST,"/api/employees").hasRole("MANAGER")
+                        .requestMatchers(HttpMethod.PUT,"/api/employees").hasRole("MANAGER")
+                        .requestMatchers(HttpMethod.DELETE,"/api/employees/**").hasRole("ADMIN")
+
+        );
+
+        // use HTTP Basic authentication
+        http.httpBasic(Customizer.withDefaults());
+
+        //disable Cross Site Request Forgery (CSRF)
+        //in general not required for stateless REST APIs that use POST, PUT, DELETE and/or PATCH
+        http.csrf(csrf -> csrf.disable());
+      
+        return http.build();
+    }
+```
+* **NOTE:** ** matches on all sub-paths
+* **http.httpBasic(Customizer.withDefaults()); -** Need to mention type of authentication method used and return this http.build as we are overriding security filter chain. 
+
+
+
+### JDBC Authentication - Plain text
+* Can use JDBC to add details of users and then access API endpoints based on roles.
+* Spring security can read user accounts info from database. 
+* By default, one needs to follow Spring Security's predefined table schemas. This helps in reducing java code.
+* One can also customize the table schemas - developer need to write code to access the data (JDBC/ JPA/ Hibernate).
+
+* Follow the below steps -- 
+1. Default spring security database schema is as follows which consists of 2 tables 
+  * **users** - username, password, enabled
+  * **authorities** - username, authority
+```roomsql
+-- Table structure for table `users`
+CREATE TABLE `users` (
+  `username` varchar(50) NOT NULL,
+  `password` varchar(50) NOT NULL,
+  `enabled` tinyint NOT NULL,
+  PRIMARY KEY (`username`)
+) ENGINE=InnoDB DEFAULT CHARSET=latin1;
+
+
+-- Table structure for table `authorities`
+CREATE TABLE `authorities` (
+  `username` varchar(50) NOT NULL,
+  `authority` varchar(50) NOT NULL,
+  UNIQUE KEY `authorities_idx_1` (`username`,`authority`),
+  CONSTRAINT `authorities_ibfk_1` FOREIGN KEY (`username`) REFERENCES `users` (`username`)
+) ENGINE=InnoDB DEFAULT CHARSET=latin1;
+```
+2. Add database support to POM file - **MySQL dependency**
+```dependencies
+  <dependency>
+	<groupId>com.mysql</groupId>
+	<artifactId>mysql-connector-j</artifactId>
+  </dependency>
+```
+3. Create JDBC properties file - Add following in properties file - 
+```properties
+spring.datasource.url=jdbc:mysql://localhost:3306/employee_directory
+spring.datasource.username=springstudent
+spring.datasource.password=springstudent
+```
+4. Update security to use JDBC in security config Class
+```java
+//create Bean which returns user details
+@Bean
+public UserDetailsManager userDetailsManager(DataSource dataSource)     //inject DataSource which is auto-configured by Spring Boot
+{            
+    return new JdbcUserDetailsManager(dataSource);          //tells spring security to use JDBC authentication with our data Source
+}
+```
+
