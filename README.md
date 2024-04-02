@@ -1,7 +1,4 @@
 # Read Me First
-The following was discovered as part of building this project:
-
-* The original package name 'com.SBProject.hello-spring' is invalid and this project uses 'com.SBProject.hellospring' instead.
 
 # Getting Started
 
@@ -11,6 +8,10 @@ For further reference, please consider the following sections:
 * [Official Apache Maven documentation](https://maven.apache.org/guides/index.html)
 * [Spring Boot Maven Plugin Reference Guide](https://docs.spring.io/spring-boot/docs/3.2.1/maven-plugin/reference/html/)
 * [Create an OCI image](https://docs.spring.io/spring-boot/docs/3.2.1/maven-plugin/reference/html/#build-image)
+
+# Project Creation and software details
+* **Technologies used -** JAVA, Springboot, MySQL, Maven
+* Create project using Spring Initializr - https://start.spring.io/
 
 ## Adding Project to the GIT
 1. Install Git into your system. 
@@ -24,15 +25,92 @@ For further reference, please consider the following sections:
 <hr>
 
 ## SECTION 1 - Spring Boot 3
+### Goal of Spring boot
+* Light-weight development with Java POJOs.
+* Dependency injection
+* Minimize boilerplate code
+
+### Run Spring boot project
+* **_mvn spring-boot:run-_** compiles application code and runs the compiled code.
+* **_mvn clean spring-boot:run-_** removes previously compiled code. Compiles again and runs it.
+
+### Project Structure
+* **_src/main/java-_** Java source code
+* **_src/main/resources-_** Properties/ config files used by app.
+* **_src/main/webapp-_** JSP files and web config files
+* **_src/test-_** Unit testing code and properties
+* **_target-_** Destination directory for compiled code. It is automatically created by Maven.
+
 ### SpringBoot DevTools
-### Actuators
-### Securing the Endpoints
+* Used to automatically restart the applications when code is updated.
+* Need to add dependency -- **spring-boot-devtools**
+
+### Spring boot - Actuators
+* Used to monitor, manage, check application health and access application metrics.
+* Exposes endpoints to monitor and manage application.
+* Add following dependency to the POM file -- **spring-boot-starter-actuator**
+* There are few actuators as follows --
+  * **/health -** checks the status of application. Normally it is used by monitoring apps to see app is up or down.
+  * **/info-** provides information for application. 
+
+* To use this make changes to application.properties file--
+```properties
+management.endpoints.web.exposure.include=health,info
+management.info.env.enabled=true
+
+# It needs to have some values in properties file like --
+info.app.name= MY APP
+info.app.description= An example of actuator
+info.app.version=1.0.0
+
+# Properties starting with "info." will be used by /info.
+```
+* There are around 10+ spring actuators.
+* By default, only /health is exposed. To expose all actuator endpoints over HTTP use following --
+```properties
+management.endpoints.web.exposure.include=*
+# '*' is for all endpoints.
+```
+* Exclude endpoints by--
+```properties
+management.endpoints.web.exposure.exclude=health,info
+```
+
+### Spring boot - Actuator Security - Securing the endpoints
+* If we do not want to expose all the information, then add Spring Security to the project and endpoints are secured.
+* Dependency to be added -- **spring-boot-starter-security**
+* When security is added and user accesses any endpoints then spring security will prompt for login.
+  * Default username: user
+  * Default password: check console for password.
+* To specify custom username and password, add following in properties file--
+```properties
+spring.security.user.name=krupa
+spring.security.user.password=test123
+```
+
 ### Custom Application Properties
+* By default, spring boot reads information from standard properties file.
+* User can define any custom properties and spring boot can use these properties using **@Value**.
+* Example - 
+```properties
+coach.name=Mickey
+team.name=The mouse club
+```
+Injecting the properties --
+```java
+@Value("${coach.name}")
+private String coachName;
+
+@Value("${team.name}")
+private String teamName;
+
+```
 
 <hr>
 
 ## SECTION 2 - Spring Core
 ### Inversion of Control
+
 ### Dependency Injection
 ### Constructor Injection
 ### Component Scanning
@@ -427,7 +505,9 @@ spring.jpa.hibernate.ddl-auto=create
 
 **NOTE-** On using **create** property, it drops the table every time and creates new table. The data is lost in this case. If one wants to keep the data as it is then use **update** property.
 
-## SECTION 4 - REST Crud APIs
+<hr>
+
+# SECTION 4 - REST Crud APIs
 
 
 * To load the data only once use - **_@PostConstruct_**
@@ -631,6 +711,7 @@ public class EmployeeServiceImpl implements EmployeeService{
     }
 }
 ```
+<hr>
 
 # SECTION 5 - Rest API Security
 
@@ -758,3 +839,7 @@ public UserDetailsManager userDetailsManager(DataSource dataSource)     //inject
 }
 ```
 
+
+
+NOTE -- For Hibernate and JPA check out another repository.
+* [Spring boot - Hibernate/JPA](https://github.com/krupapatel98/SpringBoot-Hibernate-JPA)
