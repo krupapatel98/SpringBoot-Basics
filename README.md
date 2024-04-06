@@ -109,11 +109,20 @@ private String teamName;
 <hr>
 
 ## SECTION 2 - Spring Core
-### Inversion of Control
+### Inversion of Control (IoC)
+* IoC is the approach for construction and management of objects.
+* Spring container acts as Object Factory and has following primary functionalities -
+  * Create and manage objects (IoC)
+  * Inject object dependencies (Dependency Injection)
+* The container gets information about objects from XML Configuration file, Java Annotations or Java POJO Class. These objects are called as Beans.
 
 ### Dependency Injection
-### Constructor Injection
-### Component Scanning
+* It is functionality provided by IoC.
+* The client delegates to another object the responsibility of providing its dependencies.
+* Types of dependency injections --
+  * **Constructor injection** - Dependencies will be injected using constructor. Use this when there are required dependencies.    
+  * **Setter Injection** - Dependencies will be injected using setter and/or getter methods. Use this when there are optional dependencies.
+
 ### Setter Injection
 
 * Injecting dependencies by calling setter methods on the class.
@@ -507,7 +516,7 @@ spring.jpa.hibernate.ddl-auto=create
 
 <hr>
 
-# SECTION 4 - REST Crud APIs
+## SECTION 4 - REST Crud APIs
 
 
 * To load the data only once use - **_@PostConstruct_**
@@ -713,7 +722,7 @@ public class EmployeeServiceImpl implements EmployeeService{
 ```
 <hr>
 
-# SECTION 5 - Rest API Security
+## SECTION 5 - Rest API Security
 
 * Spring security defines a framework for security.
 * Implemented using servlet filters in the background.
